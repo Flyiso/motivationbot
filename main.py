@@ -1,15 +1,20 @@
 from ollama import create, chat
 
 class MotiBot:
-    def __init__(self):
-        self.toughness = self._get_toughness()
-        self.meanness = self._get_meanness()
-        self.seriousness = self._get_seriousness()
-        self.critic_level = self._get_critic_level()
-        self.user_belief = self._get_user_beief()
+    def __init__(self, 
+                 bot_name: str = 'Rolf', toughness:int = 75,
+                 meanness:int = 40, seriousness:int = 20,
+                 critic_level:int = 90, user_belief:int = 90):
+        self.bot_name = bot_name
+        self.toughness = self._get_toughness(toughness)
+        self.meanness = self._get_meanness(meanness)
+        self.seriousness = self._get_seriousness(seriousness)
+        self.critic_level = self._get_critic_level(critic_level)
+        self.user_belief = self._get_user_beief(user_belief)
         self.personality = self._get_personality()
         self.system_prompt = /
         f'You are a coach who deliver motivational speaches.{self.personality}'
+        self.model = self._create_bot()
     
     def _get_personality(self):
         return f'{self.toughness} {self.meanness} {self.seriousness} {self.critic_level} {self.user_belief}'
@@ -25,7 +30,7 @@ class MotiBot:
         if q_level <= 49:
             quality = 'tough'
         level = max([q_level, 50]) - min([q_level, 50])
-        q_string = f'your personality are {self._get_quality_quantity(level)} {quality}.'
+        q_string = f'Personality-wise you are {self._get_quality_quantity(level)} {quality}.'
         return q_string
 
     def _get_meanness(self, q_level: int) -> str:
@@ -105,10 +110,17 @@ class MotiBot:
         """
         Create a llm with selected the qualities
         """
-        pass
+        create(model=self.bot_name, from_='llama3', system=self.system_prompt)
+        
     
     def get_motivation(self, mot_theme: str) -> str:
         """
         problem in, motivational text out.
         """
-        pass
+        motivation = chat(model=self.bot_name, messages=[
+            {
+                'role': 'user',
+                'content': f'give a motivational speash to the user who struggles with {mot_theme}'
+            }
+        ])
+        return motivation
