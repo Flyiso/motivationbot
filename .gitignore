@@ -4,7 +4,7 @@ __pycache__/
 *$py.class
 
 # custom/local stuff
-TTS
+audio_data
 
 # C extensions
 *.so

@@ -1,4 +1,12 @@
 from ollama import create, chat
+from kokoro import KPipeline
+from IPython.display import display, Audio
+import soundfile as sf
+import numpy as np
+import torch
+from pydub import AudioSegment
+from pydub.playback import play
+
 
 class MotiBot:
     def __init__(self, 
@@ -15,8 +23,7 @@ class MotiBot:
         self.user_belief = self._get_user_beief(user_belief)
         self.personality = self._get_personality()
         self.system_prompt = \
-        f'You are a coach who deliver motivational speaches through text. {self.personality}'
-        #print(f'{"*"*20}\n Model personality prompt:\n{self.system_prompt}\n{"*"*20}\n')
+        f'Your task is to deliver motivational speaches through text (not in all caps). {self.personality}'
         self.model = self._create_bot()
     
     def _get_personality(self):
@@ -143,7 +150,22 @@ class MotiBot:
         return motivation.message.content
 
     def get_audio_motivation(self, mot_theme):
-        print(self.get_motivation(mot_theme))
+        motivation = self.get_motivation(mot_theme)
+        print('#'*100)
+        print('')
+        print(motivation)
+        print('')
+        print('#'*100)
+        pipeline = KPipeline(lang_code='a')
+        generator = pipeline(motivation, voice='bm_george')
+        audio_data = []
+        for i, (gs, ps, audio) in enumerate(generator):
+            audio_data.append(audio)
+        full_speech = np.concatenate(audio_data)
+        sf.write(f'audio_data/fullspeech{self.bot_name}.wav', full_speech, 24000)
+        sound = AudioSegment.from_file(f'audio_data/fullspeech{self.bot_name}.wav')
+        play(sound)
+
 
 print('.'*100)
 problem = input('what do you need help with?\n')
@@ -151,30 +173,28 @@ print('.'*100)
 print('')
 
 b_name = 'jon'
-toughness = 10
-intensity = 10
-meanness = 10
+toughness = 100
+intensity = 90
+meanness = 80
 seriousness = 10
-critic_level = 10
-user_belief = 95
-
-print('#'*100)
-print('')
-custom_bot = MotiBot(b_name, toughness, intensity, meanness, seriousness, critic_level, user_belief)
-custom_bot.get_audio_motivation(problem)
-
-b_name = 'noj'
-toughness = 90
-intensity = 95
-meanness = 95
-seriousness = 90
-critic_level = 95
+critic_level = 70
 user_belief = 5
 
-print('')
-print('#'*100)
-print('')
 custom_bot = MotiBot(b_name, toughness, intensity, meanness, seriousness, critic_level, user_belief)
 custom_bot.get_audio_motivation(problem)
-print('')
-print('#'*100)
+
+#b_name = 'noj'
+#toughness = 90
+#intensity = 95
+#meanness = 95
+#seriousness = 90
+#critic_level = 95
+#user_belief = 5
+
+#print('')
+#print('#'*100)
+#print('')
+#custom_bot = MotiBot(b_name, toughness, intensity, meanness, seriousness, critic_level, user_belief)
+#custom_bot.get_audio_motivation(problem)
+#print('')
+#print('#'*100)
