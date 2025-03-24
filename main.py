@@ -47,7 +47,7 @@ class RoundedButton(Button):
         self.rect.size = self.size
 
     def adjust_font_size(self, *args):
-        self.font_size = self.width * 0.1
+        self.font_size = min([self.width * 0.1, self.height*0.5])
 
 class MyBotWidget(BoxLayout):
     def __init__(self, **kwargs):
@@ -102,21 +102,24 @@ class MyBotWidget(BoxLayout):
 
 
 class NewBotWidget(BoxLayout):
-    def __init__(self, box, **kwargs):
+    def __init__(self, box, carousel, **kwargs):
         super().__init__(orientation='vertical',
-                         padding=[10, 20, 10, 20],
-                         spacing=5)
+                         padding=[10, 10, 10, 10],
+                         spacing=0)
 
         self.dependent_box = box
+        self.carousel = carousel
         self.text_input = TextInput(
             hint_text="Name the new Coach",
-            font_size = 50,
+            font_size = 30,
+            size_hint_y = 0.5
         )
 
         self.spinner = Spinner(
             text="Select voice:",
             values=self.get_voices(),
-            font_size = 40
+            font_size = 30,
+            size_hint_y = 0.5
             )
         
         self.slider_toughness = Slider(
@@ -192,7 +195,8 @@ class NewBotWidget(BoxLayout):
         with open(f"custom_models/{bot_name}.pkl", "wb") as f:
             pickle.dump(bot, f)
         self.dependent_box.spinner.values.append(bot_name)
-        
+        self.dependent_box.spinner.text = bot_name
+        self.carousel.index = 0
     
     def clean_text(self, to_clean: str):
         return to_clean.strip().replace(" ", "-")
@@ -206,13 +210,14 @@ class MotivationBotApp(App):
         confirm_dirs('audio_data')
         confirm_dirs('custom_models')
 
+        main_box = BoxLayout(orientation='vertical')
         carousel = Carousel(direction="right")
         box_1 = MyBotWidget()
-        box_2 = NewBotWidget(box_1)
+        box_2 = NewBotWidget(box_1, carousel)
         carousel.add_widget(box_1)
         carousel.add_widget(box_2)
-
-        return carousel
+        main_box.add_widget(carousel)
+        return main_box
 
 if __name__ == '__main__':
     MotivationBotApp().run()
