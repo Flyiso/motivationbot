@@ -6,6 +6,7 @@ import numpy as np
 import torch
 from pydub import AudioSegment
 from pydub.playback import play
+import pickle
 
 
 class MotiBot:
@@ -180,8 +181,17 @@ seriousness = 10
 critic_level = 70
 user_belief = 5
 
-custom_bot = MotiBot(b_name, toughness, intensity, meanness, seriousness, critic_level, user_belief)
-custom_bot.get_audio_motivation(problem)
+#custom_bot = MotiBot(b_name, toughness, intensity, meanness, seriousness, critic_level, user_belief)
+
+#with open(f"custom_models/{b_name}.pkl", "wb") as f:
+#    pickle.dump(custom_bot, f)
+
+with open(f"custom_models/{b_name}.pkl", "rb") as f:
+    loaded_bot = pickle.load(f)
+
+loaded_bot.get_audio_motivation(problem)
+
+#custom_bot.get_audio_motivation(problem)
 
 #b_name = 'noj'
 #toughness = 90

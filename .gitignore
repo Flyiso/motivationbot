@@ -5,6 +5,7 @@ __pycache__/
 
 # custom/local stuff
 audio_data
+custom_models
 
 # C extensions
 *.so
