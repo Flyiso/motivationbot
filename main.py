@@ -106,4 +106,4 @@ class MotivationBotApp(App):
         return MyBotWidget()
 
 if __name__ == '__main__':
-    MyBotApp().run()
+    MotivationBotApp().run()
