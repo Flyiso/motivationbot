@@ -10,7 +10,7 @@ from pydub.playback import play
 
 class MotiBot:
     def __init__(self, 
-                 bot_name: str = 'Rolf',
+                 bot_name: str = 'Rolf', voice_str = 'bm_george', 
                  toughness:int = 75, intensity: int = 80,
                  meanness:int = 40, seriousness:int = 20,
                  critic_level:int = 90, user_belief:int = 90):
@@ -22,6 +22,7 @@ class MotiBot:
         self.critic_level = self._get_critic_level(critic_level)
         self.user_belief = self._get_user_beief(user_belief)
         self.personality = self._get_personality()
+        self.voice = voice_str
         self.system_prompt = \
         f'Your task is to deliver motivational speaches through text (not in all caps). {self.personality}'
         self.model = self._create_bot()
@@ -157,7 +158,7 @@ class MotiBot:
         print('')
         print('#'*100)
         pipeline = KPipeline(lang_code='a')
-        generator = pipeline(motivation, voice='bm_george')
+        generator = pipeline(motivation, voice=self.voice)
         audio_data = []
         for i, (gs, ps, audio) in enumerate(generator):
             audio_data.append(audio)
