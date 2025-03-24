@@ -167,11 +167,17 @@ class NewBotWidget(BoxLayout):
     
         self.add_widget(self.text_input)
         self.add_widget(self.spinner)
+        self.add_widget(self.get_label_box('Soft', 'Though'))
         self.add_widget(self.slider_toughness)
+        self.add_widget(self.get_label_box('Calm', 'Intense'))
         self.add_widget(self.slider_intensity)
+        self.add_widget(self.get_label_box('Nice', 'Mean'))
         self.add_widget(self.slider_meanness)
+        self.add_widget(self.get_label_box('Not serious', 'Serious'))
         self.add_widget(self.slider_seriousness)
+        self.add_widget(self.get_label_box('Forgiving', 'Critical'))
         self.add_widget(self.slider_criticlevel)
+        self.add_widget(self.get_label_box('Trusting', 'Sceptical'))
         self.add_widget(self.slider_userbelief)
         self.add_widget(self.button)
 
@@ -203,6 +209,16 @@ class NewBotWidget(BoxLayout):
         
     def get_voices(self):
         return ['bf_emma', 'bf_isabella', 'bm_george', 'bm_fable', 'am_puck', 'am_michael', 'af_bella', 'af_heart']
+    
+    def get_label_box(self, w_1, w_2):
+        label_box = BoxLayout(orientation='horizontal')
+        left_label = Label(text=w_1, halign="left", size_hint_x=None, width=100)
+        right_label = Label(text=w_2, halign="right", size_hint_x=None, width=100)
+        label_box.add_widget(left_label)
+        label_box.add_widget(Label(size_hint_x=1))
+        label_box.add_widget(right_label)
+        return label_box
+        
 
 
 class MotivationBotApp(App):
