@@ -13,20 +13,6 @@ from pathlib import Path
 import pickle
 import os
 
-# to remember/have easy access to model creation:
-#b_name = 'jon'
-#voice = 'bm_george'
-#toughness = 10
-#intensity = 10
-#meanness = 8
-#seriousness = 10
-#critic_level = 9
-#user_belief = 99
-
-#custom_bot = MotiBot(b_name, voice, toughness, intensity, meanness, seriousness, critic_level, user_belief)
-#with open(f"custom_models/{b_name}.pkl", "wb") as f:
-#    pickle.dump(custom_bot, f)
-
 
 def confirm_dirs(dir_path):
     if not os.path.exists(dir_path):
@@ -53,12 +39,12 @@ class MyBotWidget(BoxLayout):
     def __init__(self, **kwargs):
         super().__init__(orientation='vertical',
                          padding=[30, 20, 30, 20],
-                         spacing=35)
+                         spacing=50)
 
         self.spinner = Spinner(
             text="Select coach:",
             values=self.get_bots(),
-            size_hint_y = 0.15,
+            size_hint_y = None,
             font_size = 40
         )
 
@@ -76,6 +62,7 @@ class MyBotWidget(BoxLayout):
         self.button.bind(on_press=self.send_data)
 
         self.add_widget(self.spinner)
+        self.add_widget(Label(size_hint_y=1))
         self.add_widget(self.text_input)
         self.add_widget(self.button)
 
@@ -104,22 +91,20 @@ class MyBotWidget(BoxLayout):
 class NewBotWidget(BoxLayout):
     def __init__(self, box, carousel, **kwargs):
         super().__init__(orientation='vertical',
-                         padding=[10, 10, 10, 10],
-                         spacing=0)
+                         padding=[30, 10, 30, 10],
+                         spacing=25)
 
         self.dependent_box = box
         self.carousel = carousel
         self.text_input = TextInput(
             hint_text="Name the new Coach",
             font_size = 30,
-            size_hint_y = 0.5
         )
 
         self.spinner = Spinner(
             text="Select voice:",
             values=self.get_voices(),
-            font_size = 30,
-            size_hint_y = 0.5
+            font_size = 30
             )
         
         self.slider_toughness = Slider(
@@ -160,25 +145,19 @@ class NewBotWidget(BoxLayout):
 
         self.button = RoundedButton(
             text="Create Coach!",
-            size_hint_y = 0.30,
+            size_hint_y = 1,
             background_color = (0, 0, 0, 0)
         )
         self.button.bind(on_press=self.send_data)
     
         self.add_widget(self.text_input)
         self.add_widget(self.spinner)
-        self.add_widget(self.get_label_box('Soft', 'Though'))
-        self.add_widget(self.slider_toughness)
-        self.add_widget(self.get_label_box('Calm', 'Intense'))
-        self.add_widget(self.slider_intensity)
-        self.add_widget(self.get_label_box('Nice', 'Mean'))
-        self.add_widget(self.slider_meanness)
-        self.add_widget(self.get_label_box('Not serious', 'Serious'))
-        self.add_widget(self.slider_seriousness)
-        self.add_widget(self.get_label_box('Forgiving', 'Critical'))
-        self.add_widget(self.slider_criticlevel)
-        self.add_widget(self.get_label_box('Trusting', 'Sceptical'))
-        self.add_widget(self.slider_userbelief)
+        self.add_widget(self.get_labeled_slider('Soft', 'Though', self.slider_toughness))
+        self.add_widget(self.get_labeled_slider('Calm', 'Intense', self.slider_intensity))
+        self.add_widget(self.get_labeled_slider('Nice', 'Mean', self.slider_meanness))
+        self.add_widget(self.get_labeled_slider('Not serious', 'Serious', self.slider_seriousness))
+        self.add_widget(self.get_labeled_slider('Forgiving', 'Critical', self.slider_criticlevel))
+        self.add_widget(self.get_labeled_slider('Trusting', 'Sceptical', self.slider_userbelief))
         self.add_widget(self.button)
 
     def send_data(self, instance):
@@ -211,15 +190,21 @@ class NewBotWidget(BoxLayout):
         return ['bf_emma', 'bf_isabella', 'bm_george', 'bm_fable', 'am_puck', 'am_michael', 'af_bella', 'af_heart']
     
     def get_label_box(self, w_1, w_2):
-        label_box = BoxLayout(orientation='horizontal')
-        left_label = Label(text=w_1, halign="left", size_hint_x=None, width=100)
-        right_label = Label(text=w_2, halign="right", size_hint_x=None, width=100)
+        label_box = BoxLayout(orientation='horizontal', padding=(0, 0))
+        left_label = Label(text=w_1, halign="left", size_hint_x=None, width=150, font_size=30)
+        right_label = Label(text=w_2, halign="right", size_hint_x=None, width=150, font_size=30)
         label_box.add_widget(left_label)
         label_box.add_widget(Label(size_hint_x=1))
         label_box.add_widget(right_label)
         return label_box
-        
+    
+    def get_labeled_slider(self, w_1, w_2, slider):
+        box = BoxLayout(orientation="vertical", spacing=0, padding=(10, 10))
+        box.add_widget(self.get_label_box(w_1, w_2))
+        box.add_widget(slider)
+        return box
 
+        
 
 class MotivationBotApp(App):
     def build(self):
