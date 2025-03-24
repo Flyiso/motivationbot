@@ -23,7 +23,7 @@ class MotiBot:
         self.user_belief = self._get_user_beief(user_belief)
         self.personality = self._get_personality()
         self.voice = voice_str
-        self.s_len = 'Read loud, the speach should be around 30 seconds long'
+        self.s_len = 'The speach should take about 30 seconds to read loud'
         self.system_prompt = \
         f'Your task is to deliver motivational speaches through text (not in all caps). {self.s_len}. {self.personality}'
         self.model = self._create_bot()
