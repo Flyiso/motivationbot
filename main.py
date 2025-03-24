@@ -102,11 +102,12 @@ class MyBotWidget(BoxLayout):
 
 
 class NewBotWidget(BoxLayout):
-    def __init__(self, **kwargs):
+    def __init__(self, box, **kwargs):
         super().__init__(orientation='vertical',
                          padding=[10, 20, 10, 20],
                          spacing=5)
 
+        self.dependent_box = box
         self.text_input = TextInput(
             hint_text="Name the new Coach",
             font_size = 50,
@@ -190,6 +191,8 @@ class NewBotWidget(BoxLayout):
                       self.slider_criticlevel.value, self.slider_userbelief.value)
         with open(f"custom_models/{bot_name}.pkl", "wb") as f:
             pickle.dump(bot, f)
+        self.dependent_box.spinner.values.append(bot_name)
+        
     
     def clean_text(self, to_clean: str):
         return to_clean.strip().replace(" ", "-")
@@ -205,7 +208,7 @@ class MotivationBotApp(App):
 
         carousel = Carousel(direction="right")
         box_1 = MyBotWidget()
-        box_2 = NewBotWidget()
+        box_2 = NewBotWidget(box_1)
         carousel.add_widget(box_1)
         carousel.add_widget(box_2)
 
