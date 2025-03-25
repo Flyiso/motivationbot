@@ -146,18 +146,18 @@ class MotiBot:
         motivation = chat(model=self.bot_name, messages=[
             {
                 'role': 'user',
-                'content': f'give a motivational speach to the user who struggles with {mot_theme}.'
+                'content': f'motivate the user who struggles with {mot_theme}.'
             }
         ])
-        return motivation.message.content
+        self.motivation = motivation.message.content
+        print('#'*100)
+        print('')
+        print(self.motivation)
+        print('')
+        print('#'*100)
 
-    def get_audio_motivation(self, mot_theme):
-        motivation = self.get_motivation(mot_theme)
-        print('#'*100)
-        print('')
-        print(motivation)
-        print('')
-        print('#'*100)
+    def get_audio_motivation(self):
+        motivation = self.motivation
         pipeline = KPipeline(lang_code='a')
         generator = pipeline(motivation, voice=self.voice)
         audio_data = []

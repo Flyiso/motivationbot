@@ -1,6 +1,7 @@
 from kivy.app import App
 from kivy.uix.widget import Widget
 from bots import MotiBot
+from kivy.clock import Clock
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.carousel import Carousel
 from kivy.uix.spinner import Spinner
@@ -8,8 +9,10 @@ from kivy.uix.slider import Slider
 from kivy.uix.textinput import TextInput
 from kivy.uix.button import Button
 from kivy.uix.label import Label
+from kivy.uix.scrollview import ScrollView
 from kivy.graphics import Color, RoundedRectangle
 from pathlib import Path
+import threading
 import pickle
 import os
 
@@ -34,6 +37,23 @@ class RoundedButton(Button):
 
     def adjust_font_size(self, *args):
         self.font_size = min([self.width * 0.1, self.height*0.5])
+    
+    def disable_button(self):
+        self.disabled = True
+        with self.canvas.before:
+            Color(0.5, 0.5, 0.5, 1) 
+            self.rect = RoundedRectangle(pos=self.pos, size=self.size, radius=[20])
+        self.bind(pos=self.update_rect, size=self.update_rect)
+        self.bind(size=self.adjust_font_size) 
+    
+    def enable_button(self):
+        self.disabled = False
+        with self.canvas.before:
+            Color(0.1, 0.9, 0.1, 1) 
+            self.rect = RoundedRectangle(pos=self.pos, size=self.size, radius=[20])
+        self.bind(pos=self.update_rect, size=self.update_rect)
+        self.bind(size=self.adjust_font_size) 
+
 
 class MyBotWidget(BoxLayout):
     def __init__(self, **kwargs):
@@ -46,6 +66,15 @@ class MyBotWidget(BoxLayout):
             values=self.get_bots(),
             size_hint_y = None,
             font_size = 40
+        )
+
+        self.llm_speach = Label(
+            text="Enter bot, problem and press the button to get motivation.",
+            size_hint=(1, None),
+            text_size=(400, None),
+            valign="top",
+            halign="center",
+            font_size=30
         )
 
         self.text_input = TextInput(
@@ -62,11 +91,15 @@ class MyBotWidget(BoxLayout):
         self.button.bind(on_press=self.send_data)
 
         self.add_widget(self.spinner)
-        self.add_widget(Label(size_hint_y=1))
         self.add_widget(self.text_input)
         self.add_widget(self.button)
+        self.llm_speach.bind(texture_size=lambda instance, size: setattr(instance, 'height', size[1]))
+        self.scroll_view = ScrollView(size_hint=(1, 1))
+        self.scroll_view.add_widget(self.llm_speach)
+        self.add_widget(self.scroll_view)
 
     def send_data(self, instance):
+        """Handles UI updates and starts processing in a separate thread."""
         selected_bot = self.spinner.text
         input_text = self.text_input.text
 
@@ -78,11 +111,34 @@ class MyBotWidget(BoxLayout):
             print("Please tell what you need help with!")
             return
 
-        user_problem = input_text
+        self.llm_speach.text = "Generating speech..."
+
+        
+        instance.disabled = True
+        instance.opacity = 0
+        instance.disable_button()
+        instance.opacity = 1
+        
+        Clock.schedule_once(lambda dt: self.do_layout(), 0)
+
+        threading.Thread(target=self.process_motivation, args=(instance,), daemon=True).start()
+
+    def process_motivation(self, instance):
+        """Runs the audio processing & motivation generation in a background thread."""
+        selected_bot = self.spinner.text
+        input_text = self.text_input.text
         with open(f"custom_models/{selected_bot}.pkl", "rb") as f:
             loaded_bot = pickle.load(f)
-        loaded_bot.get_audio_motivation(input_text)
-    
+        loaded_bot.get_motivation(input_text)
+        Clock.schedule_once(lambda dt: self.update_motivation_text(loaded_bot), 0)
+        loaded_bot.get_audio_motivation()
+        Clock.schedule_once(lambda dt: instance.enable_button(), 0)
+
+    def update_motivation_text(self, loaded_bot):
+        """Ensures UI updates with motivation text."""
+        self.llm_speach.halign = 'left'
+        self.llm_speach.text = loaded_bot.motivation
+        
     def get_bots(self):
         bots = [bot.stem for bot in Path('custom_models').iterdir() if bot.is_file()]
         return bots
