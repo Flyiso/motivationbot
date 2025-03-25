@@ -40,6 +40,7 @@ class RoundedButton(Button):
     
     def disable_button(self):
         self.disabled = True
+        self.canvas.before.clear() 
         with self.canvas.before:
             Color(0.5, 0.5, 0.5, 1) 
             self.rect = RoundedRectangle(pos=self.pos, size=self.size, radius=[20])
@@ -48,6 +49,7 @@ class RoundedButton(Button):
     
     def enable_button(self):
         self.disabled = False
+        self.canvas.before.clear() 
         with self.canvas.before:
             Color(0.1, 0.9, 0.1, 1) 
             self.rect = RoundedRectangle(pos=self.pos, size=self.size, radius=[20])
@@ -115,11 +117,12 @@ class MyBotWidget(BoxLayout):
 
         
         instance.disabled = True
-        instance.opacity = 0
+        self.button.Color=(0.5, 0.5, 0.1, 0)
+        instance.Color = (0.5, 0.5, 0.5, 1)
         instance.disable_button()
-        instance.opacity = 1
+
         
-        Clock.schedule_once(lambda dt: self.do_layout(), 0)
+        #Clock.schedule_once(lambda dt: self.do_layout(), 0)
 
         threading.Thread(target=self.process_motivation, args=(instance,), daemon=True).start()
 
