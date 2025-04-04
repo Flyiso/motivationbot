@@ -114,15 +114,11 @@ class MyBotWidget(BoxLayout):
             return
 
         self.llm_speach.text = "Generating speech..."
-
         
         instance.disabled = True
         self.button.Color=(0.5, 0.5, 0.1, 0)
         instance.Color = (0.5, 0.5, 0.5, 1)
         instance.disable_button()
-
-        
-        #Clock.schedule_once(lambda dt: self.do_layout(), 0)
 
         threading.Thread(target=self.process_motivation, args=(instance,), daemon=True).start()
 
@@ -202,6 +198,11 @@ class NewBotWidget(BoxLayout):
             value = 50
         )
 
+        self.text_input_character = TextInput(
+            hint_text = "If you want the coach's personality to be inspired by someone, write their name here",
+            font_size = 30,
+        )
+
         self.button = RoundedButton(
             text="Create Coach!",
             size_hint_y = 1,
@@ -217,11 +218,13 @@ class NewBotWidget(BoxLayout):
         self.add_widget(self.get_labeled_slider('Not serious', 'Serious', self.slider_seriousness))
         self.add_widget(self.get_labeled_slider('Forgiving', 'Critical', self.slider_criticlevel))
         self.add_widget(self.get_labeled_slider('Trusting', 'Sceptical', self.slider_userbelief))
+        self.add_widget(self.text_input_character)
         self.add_widget(self.button)
 
     def send_data(self, instance):
         bot_name = self.text_input.text
         selected_voice = self.spinner.text
+        bot_character = self.text_input_character.text.strip()
 
         if selected_voice == "Select voice":
             print("Please select a voice")
@@ -231,11 +234,12 @@ class NewBotWidget(BoxLayout):
             print("Please Name the coach!")
             return
         bot_name = self.clean_text(bot_name)
-
+        
         bot = MotiBot(bot_name, selected_voice,
                       self.slider_toughness.value, self.slider_intensity.value,
                       self.slider_meanness.value, self.slider_seriousness.value,
-                      self.slider_criticlevel.value, self.slider_userbelief.value)
+                      self.slider_criticlevel.value, self.slider_userbelief.value,
+                      bot_character)
         with open(f"custom_models/{bot_name}.pkl", "wb") as f:
             pickle.dump(bot, f)
         self.dependent_box.spinner.values.append(bot_name)

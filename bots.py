@@ -13,7 +13,8 @@ class MotiBot:
                  bot_name: str = 'Rolf', voice_str = 'bm_george', 
                  toughness:int = 75, intensity: int = 80,
                  meanness:int = 40, seriousness:int = 20,
-                 critic_level:int = 90, user_belief:int = 90):
+                 critic_level:int = 90, user_belief:int = 90,
+                 bot_character:str = ''):
         self.bot_name = bot_name
         self.toughness = self._get_toughness(toughness)
         self.intensity = self._get_intensity(intensity)
@@ -23,14 +24,22 @@ class MotiBot:
         self.user_belief = self._get_user_beief(user_belief)
         self.personality = self._get_personality()
         self.voice = voice_str
-        self.s_len = 'The speach should take about 30 seconds to read loud'
+        self.s_len = 'The speach should take no more than 30 seconds read out loud'
         self.system_prompt = \
-        f'Your task is to deliver motivational speaches through text (not in all caps). {self.s_len}. {self.personality}'
+        f'{self._get_person_imitation(bot_character)}. {self.s_len}. {self.personality}'
         self.model = self._create_bot()
     
     def _get_personality(self):
         return f'{self.toughness} {self.intensity} {self.meanness} {self.seriousness} {self.critic_level} {self.user_belief}'
     
+    def _get_person_imitation(self, person: str) -> str:
+        """
+        set the value of the optional parameter in the 'person to imitate' field.
+        """
+        if person == '':
+            person = 'a personal coach'
+        return f'You are {person} and your task is to give motivational speaches through text (not in all caps)'
+
     def _get_toughness(self, q_level: int) -> str:
         """
         How tough or patient the assistant should be.
@@ -42,7 +51,7 @@ class MotiBot:
         if q_level >= 49:
             quality = 'tough'
         level = max([q_level, 50]) - min([q_level, 50])
-        q_string = f'Personality-wise you are {self._get_quality_quantity(level)} {quality},'
+        q_string = f'Your attitude are {self._get_quality_quantity(level)} {quality},'
         return q_string
     
     def _get_intensity(self, q_level: int) -> str:
