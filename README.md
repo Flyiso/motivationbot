@@ -6,3 +6,4 @@ chatbot+TTS, that generates motivational speaches and read them.
 
 # TODO:
 * change to a local TTS model.
+* Tutorial / user guide
